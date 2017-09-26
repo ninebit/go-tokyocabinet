@@ -1,3 +1,5 @@
+[![GoDoc](https://godoc.org/github.com/TerraTech/go-tokyocabinet?status.svg)](https://godoc.org/github.com/TerraTech/go-tokyocabinet)
+
 Go bindings for (most of) the Tokyo Cabinet database library.
 
 Copyright 2014 ThreatGRID, Inc.
