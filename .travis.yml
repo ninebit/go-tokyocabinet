@@ -1,0 +1,18 @@
+language: go
+go:
+  - 1.6.x
+  - 1.7.x
+  - 1.8.x
+  - 1.9.x
+
+branches:
+  only:
+  - master
+  - next
+  - build
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libtokyocabinet-dev
+
+script: go test
