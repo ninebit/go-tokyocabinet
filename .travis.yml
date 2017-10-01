@@ -10,9 +10,10 @@ branches:
   - master
   - next
   - build
+  - /^issue\/\d+$/
 
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libtokyocabinet-dev
 
-script: go test
+script: make test
