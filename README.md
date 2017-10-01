@@ -1,4 +1,5 @@
 [![GoDoc](https://godoc.org/github.com/TerraTech/go-tokyocabinet?status.svg)](https://godoc.org/github.com/TerraTech/go-tokyocabinet)
+[![Build Status](https://travis-ci.org/TerraTech/go-tokyocabinet.svg?branch=master)](https://travis-ci.org/TerraTech/go-tokyocabinet)
 
 Go bindings for (most of) the Tokyo Cabinet database library.
 
