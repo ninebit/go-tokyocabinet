@@ -12,6 +12,7 @@ branches:
   - build
   - devel
   - /^issue\/\d+$/
+  - /^feat\//
 
 before_install:
   - sudo apt-get update -qq
