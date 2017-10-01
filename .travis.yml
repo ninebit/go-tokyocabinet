@@ -10,6 +10,7 @@ branches:
   - master
   - next
   - build
+  - devel
   - /^issue\/\d+$/
 
 before_install:
