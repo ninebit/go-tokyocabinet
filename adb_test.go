@@ -1,8 +1,11 @@
 package tokyocabinet
 
-import "bytes"
-import "os"
-import "testing"
+import (
+	"bytes"
+	"os"
+	"sort"
+	"testing"
+)
 
 func adb_assertOpen(t *testing.T, filename string) ADB {
 	var db ADB = *NewADB()
@@ -160,6 +163,52 @@ func TestADBIter(t *testing.T) {
 	adb_assertPut(t, db, "goodbye", "world")
 
 	adb_assertIterKeySet(t, db, []string{"hello", "goodbye"})
+}
+
+func TestADBIterString(t *testing.T) {
+	db := adb_assertOpen(t, "*")
+	defer adb_assertClose(t, db)
+
+	adb_assertPut(t, db, "hello", "world")
+	adb_assertPut(t, db, "goodbye", "world")
+
+	keys := make(map[string]struct{})
+	_keys, err := db.IterKeysString()
+	if err != nil {
+		t.Fatalf("IterKeyString() failed: %s", err)
+	}
+
+	for _, k := range _keys {
+		keys[k] = struct{}{}
+	}
+
+	for _, e := range []string{"hello", "goodbye"} {
+		if _, ok := keys[e]; !ok {
+			t.Fatalf("IterKeyString failed to retrieve all keys: %s", e)
+		}
+	}
+}
+
+func TestADBIterStringSort(t *testing.T) {
+	db := adb_assertOpen(t, "*")
+	defer adb_assertClose(t, db)
+
+	lr := []string{"hello", "is", "it", "me", "you're", "looking", "for?", "no!", "goodbye"}
+	for _, _lr := range lr {
+		adb_assertPut(t, db, _lr, "world")
+	}
+
+	actual, err := db.IterKeysStringSorted()
+	if err != nil {
+		t.Fatalf("IterKeyStringSorted() failed: %s", err)
+	}
+
+	sort.Strings(lr)
+	for i, v := range lr {
+		if v != actual[i] {
+			t.Fatalf("IterKeyStringSorted() failed to retrieve all keys: %s", v)
+		}
+	}
 }
 
 func TestADBPut(t *testing.T) {
