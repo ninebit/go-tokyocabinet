@@ -51,10 +51,7 @@ func bdb_assertPutKeep(t *testing.T, db BDB, key string, value string) {
 }
 
 func bdb_assertGetValue(t *testing.T, db BDB, key string, expected string) {
-	value, err := db.Get([]byte(key))
-	if err != nil {
-		t.Fatalf("Unable to retrieve value for key %s: %s", key, err)
-	}
+	value := db.Get([]byte(key))
 	if bytes.Compare([]byte(expected), value) != 0 {
 		t.Fatalf("Value for key %s came back incorrect (expected: %s; got: %s)", key, []byte(expected), value)
 	}
