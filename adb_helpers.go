@@ -8,7 +8,7 @@ import (
 //
 // NOTE: returned []string can be in arbitrary order, see IterKeysStringSorted()
 func (db *ADB) IterKeysString() ([]string, error) {
-	s := make([]string, 0)
+	var s []string
 
 	c, e := db.IterKeys()
 	for {
