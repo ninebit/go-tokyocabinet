@@ -6,22 +6,28 @@ import "C"
 
 import "unsafe"
 
-// abstract database doesn't provide detailed error messages
+// Abstract Database Object doesn't provide detailed error messages.
 const ERR_MSG string = "Database operation failed"
 
+// ADB represents an Abstract Database Object which supports all Tokyo Cabinet database types.
 type ADB struct {
 	c_db *C.TCADB
 }
 
+// NewADB returns a new Abstract Database Object.
 func NewADB() *ADB {
 	c_db := C.tcadbnew()
 	return &ADB{c_db}
 }
 
+// Del is used to delete an Abstract Database Object.
 func (db *ADB) Del() {
 	C.tcadbdel(db.c_db)
 }
 
+// Open will open an existing database, or create a new one if it doesn't exist.
+//
+// Note: The database that is opened and written to must be closed.
 func (db *ADB) Open(path string) (err error) {
 	c_path := C.CString(path)
 	defer C.free(unsafe.Pointer(c_path))
@@ -31,6 +37,10 @@ func (db *ADB) Open(path string) (err error) {
 	return
 }
 
+// Close will close the opened database
+//
+// Note: Update of a database is assured to be written when the database is closed.  If a writer opens
+// a database but does not close it appropriately, the database will be broken.
 func (db *ADB) Close() (err error) {
 	if !C.tcadbclose(db.c_db) {
 		err = NewTokyoCabinetError(0, ERR_MSG)
