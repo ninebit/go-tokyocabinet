@@ -31,6 +31,15 @@ type BDB struct {
 	c_db *C.TCBDB
 }
 
+type Cursor struct {
+    c_cursor *C.BDBCUR
+}
+
+type Record struct {
+    K []byte
+    V []byte
+}
+
 func NewBDB() *BDB {
 	c_db := C.tcbdbnew()
 	return &BDB{c_db}
@@ -213,6 +222,58 @@ func (db *BDB) Range(startKey []byte, startInclusive bool, endKey []byte,
 
 	return
 }
+
+func (db *BDB) CursorRecord(cur Cursor) (rec Record){
+    rec.K = []byte("")
+    rec.V = []byte("")
+
+    //type TCXSTR struct {
+    //    ptr unsafe.Pointer
+    //    size C.int
+    //    a_size C.int
+    //}
+    k := C.tcxstrnew()
+    v := C.tcxstrnew()
+    defer C.free(unsafe.Pointer(k))
+    defer C.free(unsafe.Pointer(v))
+
+    //bool tcbdbcurrec(BDBCUR *cur, TCXSTR *kxstr, TCXSTR *vxstr);
+    success := C.tcbdbcurrec(cur.c_cursor, k, v)
+    if success {
+        rec.K = C.GoBytes(unsafe.Pointer(k.ptr), k.size)
+        rec.V = C.GoBytes(unsafe.Pointer(v.ptr), v.size)
+    }
+
+    return rec
+}
+
+func (db *BDB) Iterator() (ch chan Record) {
+    ch = make(chan Record)
+
+    go func() {
+        defer close(ch)
+
+        var cur Cursor
+        var rec Record
+        //BDBCUR *tcbdbcurnew(TCBDB *bdb);
+        cur.c_cursor = C.tcbdbcurnew(db.c_db)
+
+        //bool tcbdbcurfirst(BDBCUR *cur);
+        success := C.tcbdbcurfirst(cur.c_cursor)
+        if  !success {
+            return
+        }
+
+        //bool tcbdbcurnext(BDBCUR *cur);
+        for success := C.tcbdbcurfirst(cur.c_cursor); success; success = C.tcbdbcurnext(cur.c_cursor) {
+            rec = db.CursorRecord(cur)
+            ch <- rec
+        }
+    }()
+
+    return ch
+}
+
 
 func (db *BDB) Sync() (err error) {
 	if !C.tcbdbsync(db.c_db) {
